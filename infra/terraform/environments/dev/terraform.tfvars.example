@@ -1,0 +1,15 @@
+subscription_id = "00000000-0000-0000-0000-000000000000"
+
+location = "Canada Central"
+
+resource_group_name = "rg-ealh-dev-canadacentral"
+
+storage_account_name = "stYOURNAMEealhdev001"
+
+data_factory_name = "adf-ealh-dev-canadacentral"
+
+key_vault_name = "kv-YOURNAME-ealh-dev"
+
+databricks_workspace_name = "dbw-ealh-dev-canadacentral"
+
+databricks_managed_resource_group_name = "rg-ealh-dev-databricks-managed"

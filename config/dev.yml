@@ -1,0 +1,31 @@
+environment: dev
+location: Canada Central
+
+azure:
+  resource_group_name: rg-ealh-dev-canadacentral
+  storage_account_name: stsubhashealhdev001
+  data_factory_name: adf-ealh-dev-canadacentral
+  key_vault_name: kv-subhash-ealh-dev
+
+databricks:
+  workspace_name: dbw-ealh-dev-canadacentral
+  workspace_url: https://adb-7405617418209672.12.azuredatabricks.net
+  catalog_name: ealh_dev
+
+adls:
+  containers:
+    raw: raw
+    bronze: bronze
+    silver: silver
+    gold: gold
+    checkpoint: checkpoint
+    landing: landing
+    archive: archive
+    quarantine: quarantine
+
+paths:
+  raw_base: abfss://raw@stsubhashealhdev001.dfs.core.windows.net
+  bronze_base: abfss://bronze@stsubhashealhdev001.dfs.core.windows.net
+  silver_base: abfss://silver@stsubhashealhdev001.dfs.core.windows.net
+  gold_base: abfss://gold@stsubhashealhdev001.dfs.core.windows.net
+  checkpoint_base: abfss://checkpoint@stsubhashealhdev001.dfs.core.windows.net
