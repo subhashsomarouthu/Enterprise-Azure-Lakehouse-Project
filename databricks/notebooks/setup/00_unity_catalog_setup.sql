@@ -12,6 +12,9 @@ COMMENT 'Control tables for watermarks, backfills, locks, and operational state'
 CREATE SCHEMA IF NOT EXISTS ealh_dev.audit
 COMMENT 'Audit tables for pipeline runs, data quality, schema drift, and errors';
 
+CREATE SCHEMA IF NOT EXISTS ealh_dev.quarantine
+COMMENT 'Rejected records and files requiring investigation or replay';
+
 CREATE SCHEMA IF NOT EXISTS ealh_dev.bronze
 COMMENT 'Bronze layer: source-shaped Delta tables with ingestion metadata';
 
@@ -171,5 +174,27 @@ CREATE TABLE IF NOT EXISTS ealh_dev.audit.error_log (
 )
 USING DELTA
 COMMENT 'Centralized pipeline error log';
+
+CREATE TABLE IF NOT EXISTS ealh_dev.quarantine.rejected_records (
+  rejection_id STRING NOT NULL,
+  run_id STRING,
+  batch_id STRING,
+  source_system_id STRING,
+  source_table STRING,
+  target_layer STRING,
+  target_table STRING,
+  rejection_reason STRING NOT NULL,
+  rule_id STRING,
+  severity STRING,
+  raw_record STRING,
+  source_file_path STRING,
+  rejected_at TIMESTAMP,
+  reviewed_status STRING,
+  reviewed_by STRING,
+  reviewed_at TIMESTAMP,
+  notes STRING
+)
+USING DELTA
+COMMENT 'Generic quarantine table for rejected records across ingestion and transformation layers';
 
 SHOW SCHEMAS IN ealh_dev;
