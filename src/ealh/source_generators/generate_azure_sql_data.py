@@ -186,7 +186,7 @@ def insert_orders(cursor, count, batch_size):
             INSERT INTO sales.orders
             (customer_id, order_date, order_status, sales_channel, payment_method, shipping_city, shipping_country,
              subtotal_amount, discount_amount, tax_amount, shipping_amount, total_amount)
-            OUTPUT INSERTED.order_id
+            
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             order_rows,
