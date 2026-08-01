@@ -1,0 +1,9 @@
+{
+  "name": "ls_adls_lake",
+  "properties": {
+    "type": "AzureBlobFS",
+    "typeProperties": {
+      "url": "https://stsubhashealhdev001.dfs.core.windows.net/"
+    }
+  }
+}

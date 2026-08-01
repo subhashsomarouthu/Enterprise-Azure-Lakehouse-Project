@@ -1,0 +1,80 @@
+{
+  "name": "pl_ingest_azuresql_to_raw",
+  "properties": {
+    "description": "Metadata-driven ingestion from Azure SQL Sales OLTP to ADLS raw zone.",
+    "parameters": {
+      "sourceTables": {
+        "type": "Array"
+      },
+      "batchId": {
+        "type": "String"
+      },
+      "loadDate": {
+        "type": "String"
+      }
+    },
+    "activities": [
+      {
+        "name": "ForEach_Source_Table",
+        "type": "ForEach",
+        "typeProperties": {
+          "items": {
+            "value": "@pipeline().parameters.sourceTables",
+            "type": "Expression"
+          },
+          "isSequential": false,
+          "batchCount": 5,
+          "activities": [
+            {
+              "name": "Copy_Table_To_Raw",
+              "type": "Copy",
+              "inputs": [
+                {
+                  "referenceName": "ds_azuresql_table",
+                  "type": "DatasetReference",
+                  "parameters": {
+                    "schemaName": {
+                      "value": "@item().source_schema",
+                      "type": "Expression"
+                    },
+                    "tableName": {
+                      "value": "@item().source_table",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "referenceName": "ds_adls_parquet_raw",
+                  "type": "DatasetReference",
+                  "parameters": {
+                    "container": "raw",
+                    "directory": {
+                      "value": "@concat('azuresql_sales/', item().target_entity, '/load_date=', pipeline().parameters.loadDate, '/batch_id=', pipeline().parameters.batchId)",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ],
+              "typeProperties": {
+                "source": {
+                  "type": "AzureSqlSource"
+                },
+                "sink": {
+                  "type": "ParquetSink",
+                  "storeSettings": {
+                    "type": "AzureBlobFSWriteSettings"
+                  },
+                  "formatSettings": {
+                    "type": "ParquetWriteSettings"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
