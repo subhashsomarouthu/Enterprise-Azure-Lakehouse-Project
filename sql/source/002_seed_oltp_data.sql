@@ -1,0 +1,2 @@
+-- Seed script will be added in the next step.
+-- This file will insert realistic sample retail/e-commerce source data.
