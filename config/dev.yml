@@ -6,6 +6,8 @@ azure:
   storage_account_name: stsubhashealhdev001
   data_factory_name: adf-ealh-dev-canadacentral
   key_vault_name: kv-subhash-ealh-dev
+  sql_server_name: sql-subhash-ealh-dev
+  sql_database_name: sqldb-ealh-dev
 
 databricks:
   workspace_name: dbw-ealh-dev-canadacentral
