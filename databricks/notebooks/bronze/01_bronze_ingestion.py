@@ -4,7 +4,7 @@
 
 from datetime import datetime, timezone
 
-from pyspark.sql.functions import col, current_timestamp, input_file_name, lit, sha2, concat_ws
+from pyspark.sql.functions import col, current_timestamp, lit, sha2, concat_ws
 
 dbutils.widgets.text("catalog_name", "ealh_dev")
 dbutils.widgets.text("source_system_id", "azuresql_sales")
@@ -41,7 +41,7 @@ def add_bronze_metadata(df, entity, primary_key):
         .withColumn("_source_entity", lit(entity))
         .withColumn("_load_date", lit(LOAD_DATE))
         .withColumn("_batch_id", lit(BATCH_ID))
-        .withColumn("_source_file_path", input_file_name())
+        .withColumn("_source_file_path", col("_metadata.file_path"))
         .withColumn("_bronze_loaded_at", current_timestamp())
         .withColumn("_record_hash", sha2(concat_ws("||", *[col(c).cast("string") for c in source_cols]), 256))
         .withColumn("_primary_key", col(primary_key).cast("string"))
