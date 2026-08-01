@@ -21,3 +21,12 @@ output "databricks_workspace_name" {
 output "databricks_workspace_url" {
   value = azurerm_databricks_workspace.main.workspace_url
 }
+
+
+output "sql_server_name" {
+  value = azurerm_mssql_server.source.name
+}
+
+output "sql_database_name" {
+  value = azurerm_mssql_database.source.name
+}

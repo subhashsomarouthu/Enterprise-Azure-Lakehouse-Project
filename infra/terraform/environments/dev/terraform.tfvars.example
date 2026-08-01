@@ -13,3 +13,8 @@ key_vault_name = "kv-YOURNAME-ealh-dev"
 databricks_workspace_name = "dbw-ealh-dev-canadacentral"
 
 databricks_managed_resource_group_name = "rg-ealh-dev-databricks-managed"
+
+sql_server_name    = "sql-yourname-ealh-dev"
+sql_database_name  = "sqldb-ealh-dev"
+sql_admin_login    = "sqladminuser"
+sql_admin_password = "replace-with-secure-password"

@@ -54,3 +54,26 @@ variable "databricks_managed_resource_group_name" {
   type        = string
   default     = "rg-ealh-dev-databricks-managed"
 }
+
+variable "sql_server_name" {
+  description = "Azure SQL logical server name. Must be globally unique."
+  type        = string
+}
+
+variable "sql_database_name" {
+  description = "Azure SQL database name used as source system."
+  type        = string
+  default     = "sqldb-ealh-dev"
+}
+
+variable "sql_admin_login" {
+  description = "Azure SQL administrator username."
+  type        = string
+  default     = "sqladminuser"
+}
+
+variable "sql_admin_password" {
+  description = "Azure SQL administrator password."
+  type        = string
+  sensitive   = true
+}
