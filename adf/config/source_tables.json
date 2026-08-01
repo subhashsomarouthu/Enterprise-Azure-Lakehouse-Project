@@ -1,0 +1,60 @@
+{
+  "source_system": {
+    "source_system_id": "azuresql_sales",
+    "source_system_name": "Azure SQL Sales OLTP",
+    "source_type": "azure_sql_db",
+    "owner_team": "sales_operations"
+  },
+  "tables": [
+    {
+      "source_schema": "sales",
+      "source_table": "customers",
+      "target_entity": "customers",
+      "primary_key": "customer_id",
+      "incremental_column": "updated_at",
+      "load_type": "incremental",
+      "file_format": "parquet",
+      "raw_path": "raw/azuresql_sales/customers"
+    },
+    {
+      "source_schema": "sales",
+      "source_table": "products",
+      "target_entity": "products",
+      "primary_key": "product_id",
+      "incremental_column": "updated_at",
+      "load_type": "incremental",
+      "file_format": "parquet",
+      "raw_path": "raw/azuresql_sales/products"
+    },
+    {
+      "source_schema": "sales",
+      "source_table": "orders",
+      "target_entity": "orders",
+      "primary_key": "order_id",
+      "incremental_column": "updated_at",
+      "load_type": "incremental",
+      "file_format": "parquet",
+      "raw_path": "raw/azuresql_sales/orders"
+    },
+    {
+      "source_schema": "sales",
+      "source_table": "order_items",
+      "target_entity": "order_items",
+      "primary_key": "order_item_id",
+      "incremental_column": "updated_at",
+      "load_type": "incremental",
+      "file_format": "parquet",
+      "raw_path": "raw/azuresql_sales/order_items"
+    },
+    {
+      "source_schema": "sales",
+      "source_table": "payments",
+      "target_entity": "payments",
+      "primary_key": "payment_id",
+      "incremental_column": "updated_at",
+      "load_type": "incremental",
+      "file_format": "parquet",
+      "raw_path": "raw/azuresql_sales/payments"
+    }
+  ]
+}
