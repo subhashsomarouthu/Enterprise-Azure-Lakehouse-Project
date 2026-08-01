@@ -1,0 +1,33 @@
+{
+  "name": "ds_azuresql_table",
+  "properties": {
+    "linkedServiceName": {
+      "referenceName": "ls_azuresql_sales",
+      "type": "LinkedServiceReference",
+      "parameters": {
+        "serverName": "sql-subhash-ealh-dev",
+        "databaseName": "sqldb-ealh-dev",
+        "userName": "sqladminuser"
+      }
+    },
+    "parameters": {
+      "schemaName": {
+        "type": "String"
+      },
+      "tableName": {
+        "type": "String"
+      }
+    },
+    "type": "AzureSqlTable",
+    "typeProperties": {
+      "schema": {
+        "value": "@dataset().schemaName",
+        "type": "Expression"
+      },
+      "table": {
+        "value": "@dataset().tableName",
+        "type": "Expression"
+      }
+    }
+  }
+}

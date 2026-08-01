@@ -1,0 +1,28 @@
+{
+  "name": "ls_azuresql_sales",
+  "properties": {
+    "type": "AzureSqlDatabase",
+    "typeProperties": {
+      "connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=@{linkedService().serverName}.database.windows.net;Initial Catalog=@{linkedService().databaseName};User ID=@{linkedService().userName}",
+      "password": {
+        "type": "AzureKeyVaultSecret",
+        "store": {
+          "referenceName": "ls_keyvault",
+          "type": "LinkedServiceReference"
+        },
+        "secretName": "azure-sql-admin-password"
+      }
+    },
+    "parameters": {
+      "serverName": {
+        "type": "String"
+      },
+      "databaseName": {
+        "type": "String"
+      },
+      "userName": {
+        "type": "String"
+      }
+    }
+  }
+}
