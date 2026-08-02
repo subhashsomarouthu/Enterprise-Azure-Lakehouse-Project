@@ -23,7 +23,7 @@ LOAD_DATE = dbutils.widgets.get("load_date")
 BATCH_ID = dbutils.widgets.get("batch_id")
 STORAGE_ACCOUNT = dbutils.widgets.get("storage_account")
 FAIL_ON_TYPE_CHANGE = dbutils.widgets.get("fail_on_type_change").lower() == "true"
-FAIL_ON_REMOVED_COLUMN = dbutils.widgets.get("fail_on_removed_column").lower() == "true"
+FAIL_ON_REMOVED_COLUMN = dbutils.widgets.get("fail_on_removed_column").lower() == "false"
 
 RAW_BASE = f"abfss://raw@{STORAGE_ACCOUNT}.dfs.core.windows.net"
 BRONZE_BASE = f"abfss://bronze@{STORAGE_ACCOUNT}.dfs.core.windows.net"
