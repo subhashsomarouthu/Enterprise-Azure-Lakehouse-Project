@@ -1,0 +1,112 @@
+{
+  "name": "pl_ingest_raw_then_run_lakehouse_job",
+  "properties": {
+    "description": "Orchestrates Azure SQL raw ingestion and triggers Databricks lakehouse job.",
+    "parameters": {
+      "batchId": {
+        "type": "String"
+      },
+      "loadDate": {
+        "type": "String"
+      },
+      "currentWatermark": {
+        "type": "String"
+      }
+    },
+    "activities": [
+      {
+        "name": "Run_Incremental_Raw_Ingestion",
+        "type": "ExecutePipeline",
+        "dependsOn": [],
+        "policy": {
+          "secureInput": false
+        },
+        "userProperties": [],
+        "typeProperties": {
+          "pipeline": {
+            "referenceName": "pl_ingest_azuresql_incremental_to_raw",
+            "type": "PipelineReference"
+          },
+          "waitOnCompletion": true,
+          "parameters": {
+            "batchId": {
+              "value": "@pipeline().parameters.batchId",
+              "type": "Expression"
+            },
+            "loadDate": {
+              "value": "@pipeline().parameters.loadDate",
+              "type": "Expression"
+            },
+            "currentWatermark": {
+              "value": "@pipeline().parameters.currentWatermark",
+              "type": "Expression"
+            }
+          }
+        }
+      },
+      {
+        "name": "Get_Databricks_Token",
+        "type": "WebActivity",
+        "dependsOn": [
+          {
+            "activity": "Run_Incremental_Raw_Ingestion",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.00:05:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 15,
+          "secureOutput": true,
+          "secureInput": true
+        },
+        "userProperties": [],
+        "typeProperties": {
+          "method": "GET",
+          "url": "https://kv-subhash-ealh-dev.vault.azure.net/secrets/databricks-adf-job-token?api-version=7.4",
+          "authentication": {
+            "type": "MSI",
+            "resource": "https://vault.azure.net"
+          }
+        }
+      },
+      {
+        "name": "Run_Databricks_Lakehouse_Job",
+        "type": "WebActivity",
+        "dependsOn": [
+          {
+            "activity": "Get_Databricks_Token",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": true
+        },
+        "userProperties": [],
+        "typeProperties": {
+          "method": "POST",
+          "url": "https://adb-7405617418209672.12.azuredatabricks.net/api/2.1/jobs/run-now",
+          "headers": {
+            "Authorization": {
+              "type": "Expression",
+              "value": "@concat('Bearer ', activity('Get_Databricks_Token').output.value)"
+            },
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "value": "@concat('{\"job_id\":899633192490119,\"job_parameters\":{\"load_date\":\"', pipeline().parameters.loadDate, '\",\"batch_id\":\"', pipeline().parameters.batchId, '\"}}')",
+            "type": "Expression"
+          }
+        }
+      }
+    ]
+  }
+}
