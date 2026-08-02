@@ -1,0 +1,118 @@
+{
+  "name": "pl_ingest_azuresql_incremental_to_raw",
+  "properties": {
+    "description": "Metadata-driven incremental ingestion from Azure SQL Sales OLTP to ADLS raw zone.",
+    "parameters": {
+      "sourceSystemId": {
+        "type": "String",
+        "defaultValue": "azuresql_sales"
+      },
+      "batchId": {
+        "type": "String"
+      },
+      "loadDate": {
+        "type": "String"
+      },
+      "currentWatermark": {
+        "type": "String"
+      }
+    },
+    "activities": [
+      {
+        "name": "Lookup_Ingestion_Metadata",
+        "type": "Lookup",
+        "typeProperties": {
+          "source": {
+            "type": "AzureSqlSource",
+            "sqlReaderQuery": {
+              "value": "SELECT t.source_system_id, t.source_schema, t.source_table, t.target_entity, t.primary_key_column, t.incremental_column, t.raw_base_path, w.last_watermark_value FROM metadata.adf_ingestion_tables t INNER JOIN metadata.adf_watermark_tracking w ON t.source_system_id = w.source_system_id AND t.source_schema = w.source_schema AND t.source_table = w.source_table WHERE t.is_active = 1 AND t.source_system_id = '@{pipeline().parameters.sourceSystemId}'",
+              "type": "Expression"
+            }
+          },
+          "dataset": {
+            "referenceName": "ds_azuresql_table",
+            "type": "DatasetReference",
+            "parameters": {
+              "schemaName": "metadata",
+              "tableName": "adf_ingestion_tables"
+            }
+          },
+          "firstRowOnly": false
+        }
+      },
+      {
+        "name": "ForEach_Source_Table",
+        "type": "ForEach",
+        "dependsOn": [
+          {
+            "activity": "Lookup_Ingestion_Metadata",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "typeProperties": {
+          "items": {
+            "value": "@activity('Lookup_Ingestion_Metadata').output.value",
+            "type": "Expression"
+          },
+          "isSequential": false,
+          "batchCount": 5,
+          "activities": [
+            {
+              "name": "Copy_Incremental_Table_To_Raw",
+              "type": "Copy",
+              "inputs": [
+                {
+                  "referenceName": "ds_azuresql_table",
+                  "type": "DatasetReference",
+                  "parameters": {
+                    "schemaName": {
+                      "value": "@item().source_schema",
+                      "type": "Expression"
+                    },
+                    "tableName": {
+                      "value": "@item().source_table",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "referenceName": "ds_adls_parquet_raw",
+                  "type": "DatasetReference",
+                  "parameters": {
+                    "container": "raw",
+                    "directory": {
+                      "value": "@concat(item().raw_base_path, '/load_date=', pipeline().parameters.loadDate, '/batch_id=', pipeline().parameters.batchId)",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ],
+              "typeProperties": {
+                "source": {
+                  "type": "AzureSqlSource",
+                  "sqlReaderQuery": {
+                    "value": "@concat('SELECT * FROM ', item().source_schema, '.', item().source_table, ' WHERE ', item().incremental_column, ' > ''', item().last_watermark_value, ''' AND ', item().incremental_column, ' <= ''', pipeline().parameters.currentWatermark, '''')",
+                    "type": "Expression"
+                  }
+                },
+                "sink": {
+                  "type": "ParquetSink",
+                  "storeSettings": {
+                    "type": "AzureBlobFSWriteSettings"
+                  },
+                  "formatSettings": {
+                    "type": "ParquetWriteSettings"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -22,7 +22,7 @@ extract_properties adf/datasets/ds_azuresql_table.json "$TMP_DIR/ds_azuresql_tab
 extract_properties adf/datasets/ds_adls_parquet_raw.json "$TMP_DIR/ds_adls_parquet_raw.properties.json"
 
 extract_properties adf/pipelines/pl_ingest_azuresql_to_raw.json "$TMP_DIR/pl_ingest_azuresql_to_raw.properties.json"
-
+extract_properties adf/pipelines/pl_ingest_azuresql_incremental_to_raw.json "$TMP_DIR/pl_ingest_azuresql_incremental_to_raw.properties.json"
 echo "Deploying ADF linked services..."
 az datafactory linked-service create \
   --resource-group "$RESOURCE_GROUP" \
@@ -61,5 +61,11 @@ az datafactory pipeline create \
   --factory-name "$DATA_FACTORY" \
   --pipeline-name "pl_ingest_azuresql_to_raw" \
   --pipeline @"$TMP_DIR/pl_ingest_azuresql_to_raw.properties.json"
+
+az datafactory pipeline create \
+  --resource-group "$RESOURCE_GROUP" \
+  --factory-name "$DATA_FACTORY" \
+  --pipeline-name "pl_ingest_azuresql_incremental_to_raw" \
+  --pipeline @"$TMP_DIR/pl_ingest_azuresql_incremental_to_raw.properties.json"
 
 echo "ADF artifact deployment complete."
