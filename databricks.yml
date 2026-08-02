@@ -1,0 +1,13 @@
+bundle:
+  name: enterprise-azure-lakehouse-project
+
+include:
+  - databricks/workflows/*.yml
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-7405617418209672.12.azuredatabricks.net
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
