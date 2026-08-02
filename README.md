@@ -34,7 +34,7 @@ ADF is the top-level orchestrator. It extracts source data to raw ADLS and then 
 - Silver DQ gates before Gold processing
 - Gold star schema, SCD Type 2 customer dimension, business aggregates, and Gold DQ checks
 - Databricks Asset Bundles for job deployment
-- GitHub Actions CI and manual dev deployment
+- GitHub Actions CI and manual dev deployment`n- Disabled ADF schedule trigger for controlled scheduled orchestration
 
 ## Main Azure Resources
 
@@ -50,7 +50,7 @@ Azure SQL Database: sqldb-ealh-dev
 ## Repository Structure
 
 ```text
-adf/                         ADF linked services, datasets, pipelines, config
+adf/                         ADF linked services, datasets, pipelines, triggers, config
 config/                      Environment config files
 databricks/notebooks/        Bronze, Silver, Gold, setup, and quality notebooks
 databricks/workflows/        Databricks job definition for Asset Bundles
@@ -230,7 +230,7 @@ ADF artifacts are stored as JSON under:
 ```text
 adf/linkedServices
 adf/datasets
-adf/pipelines
+adf/pipelines`nadf/triggers
 ```
 
 Deploy locally:
@@ -239,7 +239,11 @@ Deploy locally:
 bash scripts/deploy_adf_artifacts.sh
 ```
 
-The deploy script deploys all linked services, datasets, and pipelines from the repo folders.
+The deploy script deploys all linked services, datasets, pipelines, and triggers from the repo folders.
+
+## Databricks Compute
+
+The Databricks job uses serverless job compute. There is no classic cluster or node-size configuration in this project. Databricks manages compute provisioning, scaling, runtime selection, and termination for the job tasks.
 
 ## Databricks Deployment
 
@@ -334,6 +338,32 @@ az datafactory pipeline create-run \
     \"currentWatermark\": \"$CURRENT_WATERMARK\"
   }"
 ```
+
+## Scheduled Runs
+
+The repo includes a daily ADF schedule trigger:
+
+```text
+adf/triggers/trg_daily_lakehouse_dev.json
+```
+
+The trigger is deployed in a stopped state for cost control:
+
+```text
+trg_daily_lakehouse_dev
+runtimeState: Stopped
+schedule: daily at 02:00 UTC
+```
+
+If started, it runs the parent pipeline with dynamic parameters:
+
+```text
+batchId = scheduled_<trigger scheduled timestamp>
+loadDate = trigger scheduled date
+currentWatermark = trigger scheduled timestamp
+```
+
+Keep it stopped in dev unless a scheduled run is intentionally needed.
 
 ## Monitoring
 

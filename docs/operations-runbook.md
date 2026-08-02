@@ -63,6 +63,22 @@ ealh_dev.gold.product_sales_summary
 ealh_dev.gold.customer_order_summary
 ```
 
+## Scheduled Trigger
+
+ADF trigger:
+
+```text
+trg_daily_lakehouse_dev
+```
+
+The trigger is deployed as `Stopped` to avoid automatic dev costs. If enabled, it runs daily at 02:00 UTC and passes dynamic `batchId`, `loadDate`, and `currentWatermark` values to the parent pipeline.
+
+Check in ADF:
+
+```text
+Manage -> Triggers -> trg_daily_lakehouse_dev
+```
+
 ## Trigger Full Parent Pipeline
 
 Use a new batch id for every normal run.
@@ -144,6 +160,29 @@ HAVING COUNT(*) > 1;
 
 Expected result: no rows.
 
+## Validate Gold Dimensional Tables
+
+```sql
+SELECT COUNT(*) FROM ealh_dev.gold.dim_customer;
+SELECT COUNT(*) FROM ealh_dev.gold.dim_product;
+SELECT COUNT(*) FROM ealh_dev.gold.dim_date;
+SELECT COUNT(*) FROM ealh_dev.gold.fact_orders;
+SELECT COUNT(*) FROM ealh_dev.gold.fact_order_items;
+SELECT COUNT(*) FROM ealh_dev.gold.fact_payments;
+```
+
+SCD Type 2 current-version check:
+
+```sql
+SELECT customer_id, COUNT(*) AS current_versions
+FROM ealh_dev.gold.dim_customer
+WHERE is_current = true
+GROUP BY customer_id
+HAVING COUNT(*) > 1;
+```
+
+Expected result: no rows.
+
 ## Check Gold Tables
 
 ```sql
@@ -206,7 +245,7 @@ Watermarks advance only after:
 
 ```text
 ADF raw ingestion succeeds
-Databricks Bronze/DQ/Silver/Gold job succeeds
+Databricks Bronze/DQ/Silver/Gold/DQ job succeeds
 Update_Watermarks activity succeeds
 ```
 
@@ -228,7 +267,7 @@ az datafactory pipeline list \
 Redeploy artifacts:
 
 ```bash
-./scripts/deploy_adf_artifacts.sh
+bash scripts/deploy_adf_artifacts.sh
 ```
 
 ### Key Vault Forbidden
