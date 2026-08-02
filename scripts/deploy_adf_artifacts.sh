@@ -11,9 +11,8 @@ extract_properties() {
   local input_file="$1"
   local output_file="$2"
 
-  powershell.exe -NoProfile -Command "\$json = Get-Content -Raw '$input_file' | ConvertFrom-Json; \$json.properties | ConvertTo-Json -Depth 100 | Set-Content '$output_file'"
+  python -c "import json, sys; data=json.load(open(sys.argv[1], encoding='utf-8')); json.dump(data['properties'], open(sys.argv[2], 'w', encoding='utf-8'), indent=2)" "$input_file" "$output_file"
 }
-
 deploy_with_properties() {
   local artifact_type="$1"
   local cli_type="$2"
