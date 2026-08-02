@@ -1,0 +1,39 @@
+{
+  "name": "trg_daily_lakehouse_dev",
+  "properties": {
+    "description": "Daily disabled dev trigger for the parent lakehouse pipeline.",
+    "annotations": [],
+    "runtimeState": "Stopped",
+    "pipelines": [
+      {
+        "pipelineReference": {
+          "referenceName": "pl_ingest_raw_then_run_lakehouse_job",
+          "type": "PipelineReference"
+        },
+        "parameters": {
+          "batchId": {
+            "type": "Expression",
+            "value": "@concat('scheduled_', formatDateTime(trigger().scheduledTime, 'yyyyMMdd_HHmmss'))"
+          },
+          "loadDate": {
+            "type": "Expression",
+            "value": "@formatDateTime(trigger().scheduledTime, 'yyyy-MM-dd')"
+          },
+          "currentWatermark": {
+            "type": "Expression",
+            "value": "@formatDateTime(trigger().scheduledTime, 'yyyy-MM-ddTHH:mm:ssZ')"
+          }
+        }
+      }
+    ],
+    "type": "ScheduleTrigger",
+    "typeProperties": {
+      "recurrence": {
+        "frequency": "Day",
+        "interval": 1,
+        "startTime": "2026-08-02T02:00:00Z",
+        "timeZone": "UTC"
+      }
+    }
+  }
+}
