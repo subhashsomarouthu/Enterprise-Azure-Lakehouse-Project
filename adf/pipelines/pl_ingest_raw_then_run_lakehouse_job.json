@@ -106,7 +106,50 @@
             "type": "Expression"
           }
         }
+      },
+      {
+  "name": "Update_Watermarks",
+  "type": "SqlServerStoredProcedure",
+  "dependsOn": [
+    {
+      "activity": "Run_Databricks_Lakehouse_Job",
+      "dependencyConditions": [
+        "Succeeded"
+      ]
+    }
+  ],
+  "policy": {
+    "timeout": "0.00:05:00",
+    "retry": 1,
+    "retryIntervalInSeconds": 15
+  },
+  "userProperties": [],
+  "linkedServiceName": {
+    "referenceName": "ls_azuresql_sales",
+    "type": "LinkedServiceReference",
+    "parameters": {
+      "serverName": "sql-subhash-ealh-dev",
+      "databaseName": "sqldb-ealh-dev",
+      "userName": "sqladminuser"
+    }
+  },
+  "typeProperties": {
+    "storedProcedureName": "metadata.usp_update_adf_watermarks",
+    "storedProcedureParameters": {
+      "source_system_id": {
+        "value": "azuresql_sales",
+        "type": "String"
+      },
+      "new_watermark_value": {
+        "value": {
+          "value": "@pipeline().parameters.currentWatermark",
+          "type": "Expression"
+        },
+        "type": "DateTime"
       }
+    }
+  }
+}
     ]
   }
 }
