@@ -32,7 +32,7 @@ ADF is the top-level orchestrator. It extracts source data to raw ADLS and then 
 - Bronze DQ with validated tables and quarantine support
 - Silver MERGE/upsert processing by business key
 - Silver DQ gates before Gold processing
-- Gold business aggregates and Gold DQ checks
+- Gold star schema, SCD Type 2 customer dimension, business aggregates, and Gold DQ checks
 - Databricks Asset Bundles for job deployment
 - GitHub Actions CI and manual dev deployment
 
@@ -97,8 +97,9 @@ bronze_ingestion
   -> bronze_dq_checks
     -> silver_transform
       -> silver_dq_checks
-        -> gold_aggregations
-          -> gold_dq_checks
+        -> gold_star_schema
+          -> gold_aggregations
+            -> gold_dq_checks
 ```
 
 Watermarks are updated only after the Databricks job succeeds.
@@ -129,7 +130,7 @@ Main table patterns:
 ealh_dev.bronze.<entity>
 ealh_dev.bronze.<entity>_validated
 ealh_dev.silver.<entity>
-ealh_dev.gold.<aggregate_table>
+ealh_dev.gold.<dimension_or_fact_or_aggregate_table>
 ealh_dev.audit.data_quality_results
 ealh_dev.audit.schema_drift_log
 ealh_dev.quarantine.rejected_records
@@ -154,9 +155,15 @@ Bronze is batch-idempotent: rerunning the same batch deletes existing rows for t
 
 Silver stores clean current-state business records. It reads Bronze validated tables, deduplicates by primary key, and uses Delta MERGE to upsert records.
 
-Gold stores business-ready aggregate tables:
+Gold stores both dimensional tables and business-ready aggregate tables:
 
 ```text
+ealh_dev.gold.dim_customer
+ealh_dev.gold.dim_product
+ealh_dev.gold.dim_date
+ealh_dev.gold.fact_orders
+ealh_dev.gold.fact_order_items
+ealh_dev.gold.fact_payments
 ealh_dev.gold.daily_sales_summary
 ealh_dev.gold.product_sales_summary
 ealh_dev.gold.customer_order_summary
@@ -168,7 +175,7 @@ Bronze DQ validates raw ingested data and writes valid rows into `<entity>_valid
 
 Silver DQ checks current-state table quality, including uniqueness, not-null rules, and numeric validity. Silver DQ gates Gold processing.
 
-Gold DQ checks reporting-table sanity, including non-null keys/dates and non-negative metrics.
+Gold DQ checks dimensional and reporting-table sanity, including unique keys, SCD2 current-version rules, non-null keys/dates, and non-negative metrics.
 
 DQ results are written to:
 

@@ -9,7 +9,7 @@ Azure SQL sales schema
   -> Databricks Bronze ingestion
   -> Bronze DQ checks and quarantine
   -> Databricks Silver merge
-  -> Databricks Gold aggregations
+  -> Databricks Gold star schema and aggregations
   -> BI / analytics consumers
 ```
 
@@ -52,6 +52,12 @@ ealh_dev.silver.order_items
 ealh_dev.silver.payments
 
 Gold tables:
+ealh_dev.gold.dim_customer
+ealh_dev.gold.dim_product
+ealh_dev.gold.dim_date
+ealh_dev.gold.fact_orders
+ealh_dev.gold.fact_order_items
+ealh_dev.gold.fact_payments
 ealh_dev.gold.daily_sales_summary
 ealh_dev.gold.product_sales_summary
 ealh_dev.gold.customer_order_summary
