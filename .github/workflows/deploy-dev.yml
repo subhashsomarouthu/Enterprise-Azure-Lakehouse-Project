@@ -24,7 +24,7 @@ jobs:
         env:
           RESOURCE_GROUP: rg-ealh-dev-canadacentral
           DATA_FACTORY_NAME: adf-ealh-dev-canadacentral
-        run: ./scripts/deploy_adf_artifacts.sh
+        run: bash scripts/deploy_adf_artifacts.sh
 
       - name: Validate Databricks bundle
         env:
