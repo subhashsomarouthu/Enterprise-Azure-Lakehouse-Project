@@ -6,6 +6,13 @@ from pyspark.sql import functions as F
 dbutils.widgets.text("catalog", "ealh_dev")
 dbutils.widgets.text("batch_id", "")
 
+dbutils.widgets.text("run_id", "")
+
+RUN_ID = dbutils.widgets.get("run_id").strip()
+
+if not RUN_ID:
+    RUN_ID = f"manual_{BATCH_ID}"
+
 CATALOG = dbutils.widgets.get("catalog")
 BATCH_ID = dbutils.widgets.get("batch_id").strip()
 
@@ -22,6 +29,7 @@ def add_result(table_name, rule_name, failed_count, total_count):
     status = "PASS" if failed_count == 0 else "FAIL"
 
     results.append((
+        RUN_ID,
         "silver",
         table_name,
         rule_name,
@@ -88,6 +96,7 @@ check_non_negative("payments", "amount")
 results_df = spark.createDataFrame(
     results,
     [
+        "run_id",
         "layer",
         "table_name",
         "rule_name",
