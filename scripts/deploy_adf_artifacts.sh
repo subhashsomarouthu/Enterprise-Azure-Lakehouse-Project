@@ -69,9 +69,40 @@ deploy_pipelines() {
   done
 }
 
+deploy_adf_artifacts_with_body() {
+  local artifact_type="$1"
+  local cli_type="$2"
+  local body_arg="$3"
+  local source_dir="adf/${artifact_type}"
+
+  if [ ! -d "$source_dir" ]; then
+    echo "Skipping ${artifact_type}: directory not found"
+    return
+  fi
+
+  for file in "$source_dir"/*.json; do
+    [ -e "$file" ] || continue
+
+    local name
+    name="$(basename "$file" .json)"
+    local properties_file="${TMP_DIR}/${artifact_type}_${name}.json"
+
+    extract_properties "$file" "$properties_file"
+
+    echo "Deploying ${artifact_type}: ${name}"
+
+    az datafactory "$cli_type" create \
+      --resource-group "$RESOURCE_GROUP" \
+      --factory-name "$DATA_FACTORY_NAME" \
+      --name "$name" \
+      "$body_arg" @"$properties_file"
+  done
+}
+
 deploy_with_properties "linkedServices" "linked-service"
 deploy_with_properties "datasets" "dataset"
 deploy_pipelines
+deploy_adf_artifacts_with_body "triggers" "trigger" "--properties"
 
 rm -rf "$TMP_DIR"
 
