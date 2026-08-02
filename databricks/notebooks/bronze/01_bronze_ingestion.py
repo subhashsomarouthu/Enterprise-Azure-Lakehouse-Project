@@ -1,3 +1,4 @@
+
 # Databricks notebook source
 # Enterprise Azure Lakehouse - Bronze Ingestion
 # Reads ADF-landed Parquet files from ADLS raw and writes Bronze Delta tables.
@@ -6,7 +7,7 @@
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from pyspark.sql.functions import col, current_timestamp, lit, sha2, concat_ws
+from pyspark.sql.functions import col, concat_ws, current_timestamp, lit, sha2
 
 dbutils.widgets.text("catalog_name", "ealh_dev")
 dbutils.widgets.text("source_system_id", "azuresql_sales")
@@ -56,7 +57,11 @@ def table_exists(table_name):
 
 
 def business_schema(schema):
-    return {field.name: field.dataType.simpleString() for field in schema.fields if field.name not in TECHNICAL_COLUMNS}
+    return {
+        field.name: field.dataType.simpleString()
+        for field in schema.fields
+        if field.name not in TECHNICAL_COLUMNS
+    }
 
 
 def detect_schema_drift(entity, incoming_df, target_table, primary_key):
@@ -157,8 +162,11 @@ def write_schema_drift(drift_rows):
     notes STRING
     """
 
-    spark.createDataFrame(drift_rows, schema).write.format("delta").mode("append").saveAsTable(
-        f"{CATALOG}.audit.schema_drift_log"
+    (
+        spark.createDataFrame(drift_rows, schema)
+        .write.format("delta")
+        .mode("append")
+        .saveAsTable(f"{CATALOG}.audit.schema_drift_log")
     )
 
 
@@ -177,6 +185,7 @@ def enforce_schema_policy(drift_rows):
 
 def add_bronze_metadata(df, entity, primary_key):
     source_cols = df.columns
+
     return (
         df.withColumn("_source_system_id", lit(SOURCE_SYSTEM_ID))
         .withColumn("_source_entity", lit(entity))
@@ -184,7 +193,10 @@ def add_bronze_metadata(df, entity, primary_key):
         .withColumn("_batch_id", lit(BATCH_ID))
         .withColumn("_source_file_path", col("_metadata.file_path"))
         .withColumn("_bronze_loaded_at", current_timestamp())
-        .withColumn("_record_hash", sha2(concat_ws("||", *[col(c).cast("string") for c in source_cols]), 256))
+        .withColumn(
+            "_record_hash",
+            sha2(concat_ws("||", *[col(c).cast("string") for c in source_cols]), 256),
+        )
         .withColumn("_primary_key", col(primary_key).cast("string"))
     )
 
@@ -205,16 +217,27 @@ def ingest_entity(entity, primary_key):
 
     bronze_df = add_bronze_metadata(raw_df, entity, primary_key)
 
-    (
-        bronze_df.write.format("delta")
-        .mode("overwrite")
-        .option("overwriteSchema", "true")
-        .option("path", target_path)
-        .saveAsTable(target_table)
-    )
+    if table_exists(target_table):
+        spark.sql(f"DELETE FROM {target_table} WHERE _batch_id = '{BATCH_ID}'")
+
+        (
+            bronze_df.write.format("delta")
+            .mode("append")
+            .option("mergeSchema", "true")
+            .saveAsTable(target_table)
+        )
+    else:
+        (
+            bronze_df.write.format("delta")
+            .mode("overwrite")
+            .option("overwriteSchema", "true")
+            .option("path", target_path)
+            .saveAsTable(target_table)
+        )
 
     count = bronze_df.count()
     print(f"Ingested {count} records into {target_table}")
+
     return {
         "entity": entity,
         "target_table": target_table,
@@ -231,7 +254,7 @@ for table in TABLES:
 
 audit_rows = [
     (
-        f"{BATCH_ID}_bronze_{r['entity']}",
+        f"{BATCH_ID}_bronze_{r['entity']}_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
         "bronze_ingestion",
         "bronze",
         "dev",
@@ -260,8 +283,11 @@ records_written BIGINT,
 error_message STRING
 """
 
-spark.createDataFrame(audit_rows, audit_schema).write.format("delta").mode("append").saveAsTable(
-    f"{CATALOG}.audit.pipeline_run_log"
+(
+    spark.createDataFrame(audit_rows, audit_schema)
+    .write.format("delta")
+    .mode("append")
+    .saveAsTable(f"{CATALOG}.audit.pipeline_run_log")
 )
 
 display(spark.createDataFrame(results))
