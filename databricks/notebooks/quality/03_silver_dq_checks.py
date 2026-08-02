@@ -6,6 +6,20 @@ from pyspark.sql import functions as F
 dbutils.widgets.text("catalog", "ealh_dev")
 dbutils.widgets.text("batch_id", "")
 
+dbutils.widgets.text("catalog", "ealh_dev")
+dbutils.widgets.text("batch_id", "")
+dbutils.widgets.text("run_id", "")
+
+CATALOG = dbutils.widgets.get("catalog")
+BATCH_ID = dbutils.widgets.get("batch_id").strip()
+RUN_ID = dbutils.widgets.get("run_id").strip()
+
+if not BATCH_ID:
+    raise ValueError("batch_id is required")
+
+if not RUN_ID:
+    RUN_ID = f"manual_{BATCH_ID}"
+
 dbutils.widgets.text("run_id", "")
 
 RUN_ID = dbutils.widgets.get("run_id").strip()
