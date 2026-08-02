@@ -6,6 +6,20 @@ from pyspark.sql import functions as F
 dbutils.widgets.text("catalog", "ealh_dev")
 dbutils.widgets.text("run_id", "")
 
+dbutils.widgets.text("catalog", "ealh_dev")
+dbutils.widgets.text("batch_id", "")
+dbutils.widgets.text("run_id", "")
+
+CATALOG = dbutils.widgets.get("catalog")
+BATCH_ID = dbutils.widgets.get("batch_id").strip()
+RUN_ID = dbutils.widgets.get("run_id").strip()
+
+if not BATCH_ID:
+    BATCH_ID = "not_applicable"
+
+if not RUN_ID:
+    RUN_ID = "manual_gold_dq_run"
+
 CATALOG = dbutils.widgets.get("catalog")
 RUN_ID = dbutils.widgets.get("run_id").strip()
 
@@ -30,7 +44,7 @@ def add_result(table_name, rule_name, failed_count, total_count):
         int(failed_count),
         float(pass_percentage),
         status,
-        None
+        BATCH_ID
     ))
 
 def check_not_null(table_name, column_name):
