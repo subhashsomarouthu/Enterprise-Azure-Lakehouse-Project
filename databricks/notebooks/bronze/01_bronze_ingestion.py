@@ -1,4 +1,3 @@
-
 # Databricks notebook source
 # Enterprise Azure Lakehouse - Bronze Ingestion
 # Reads ADF-landed Parquet files from ADLS raw and writes Bronze Delta tables.
