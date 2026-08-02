@@ -19,7 +19,7 @@ BATCH_ID = dbutils.widgets.get("batch_id").strip()
 if not BATCH_ID:
     raise ValueError("batch_id is required")
 
-spark.conf.set("spark.databricks.delta.schema.autoMerge.enabled", "true")
+#spark.conf.set("spark.databricks.delta.schema.autoMerge.enabled", "true")
 
 spark.sql(f"CREATE SCHEMA IF NOT EXISTS {CATALOG}.silver")
 
