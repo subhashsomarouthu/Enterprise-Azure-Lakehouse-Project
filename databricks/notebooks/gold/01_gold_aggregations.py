@@ -55,9 +55,13 @@ product_sales_summary = (
 customer_order_summary = (
     orders.alias("o")
     .join(customers.alias("c"), F.col("o.customer_id") == F.col("c.customer_id"), "left")
+    .withColumn(
+        "customer_name",
+        F.concat_ws(" ", F.col("c.first_name"), F.col("c.last_name"))
+    )
     .groupBy(
         F.col("o.customer_id"),
-        F.col("c.customer_name"),
+        F.col("customer_name"),
         F.col("c.email")
     )
     .agg(

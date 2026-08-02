@@ -4,9 +4,6 @@
 from pyspark.sql import functions as F
 
 dbutils.widgets.text("catalog", "ealh_dev")
-dbutils.widgets.text("run_id", "")
-
-dbutils.widgets.text("catalog", "ealh_dev")
 dbutils.widgets.text("batch_id", "")
 dbutils.widgets.text("run_id", "")
 
@@ -16,12 +13,6 @@ RUN_ID = dbutils.widgets.get("run_id").strip()
 
 if not BATCH_ID:
     BATCH_ID = "not_applicable"
-
-if not RUN_ID:
-    RUN_ID = "manual_gold_dq_run"
-
-CATALOG = dbutils.widgets.get("catalog")
-RUN_ID = dbutils.widgets.get("run_id").strip()
 
 if not RUN_ID:
     RUN_ID = "manual_gold_dq_run"
@@ -56,7 +47,7 @@ def check_not_null(table_name, column_name):
 def check_non_negative(table_name, column_name):
     df = spark.table(f"{CATALOG}.gold.{table_name}")
     total_count = df.count()
-    failed_count = df.filter(F.col(column_name) < 0).count()
+    failed_count = df.filter(F.col(column_name).isNull() | (F.col(column_name) < 0)).count()
     add_result(table_name, f"GLD_{table_name.upper()}_{column_name.upper()}_NON_NEGATIVE", failed_count, total_count)
 
 check_not_null("daily_sales_summary", "order_date")
