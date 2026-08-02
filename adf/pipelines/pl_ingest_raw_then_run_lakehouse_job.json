@@ -102,9 +102,9 @@
             "Content-Type": "application/json"
           },
           "body": {
-            "value": "@concat('{\"job_id\":899633192490119,\"job_parameters\":{\"load_date\":\"', pipeline().parameters.loadDate, '\",\"batch_id\":\"', pipeline().parameters.batchId, '\"}}')",
-            "type": "Expression"
-          }
+  "value": "@concat('{\"job_id\":899633192490119,\"job_parameters\":{\"load_date\":\"', pipeline().parameters.loadDate, '\",\"batch_id\":\"', pipeline().parameters.batchId, '\",\"run_id\":\"', pipeline().RunId, '\"}}')",
+  "type": "Expression"
+}
         }
       },
       {
