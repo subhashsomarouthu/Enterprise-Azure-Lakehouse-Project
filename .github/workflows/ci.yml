@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Validate IaC and Databricks Bundle
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform fmt
+        working-directory: infra/terraform/environments/dev
+        run: terraform fmt -check -recursive
+
+      - name: Terraform init
+        working-directory: infra/terraform/environments/dev
+        run: terraform init -backend=false
+
+      - name: Terraform validate
+        working-directory: infra/terraform/environments/dev
+        run: terraform validate
+
+      - name: Setup Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Databricks bundle validate
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: databricks bundle validate -t dev
