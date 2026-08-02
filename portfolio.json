@@ -1,7 +1,7 @@
 {
   "title": "Enterprise Azure Lakehouse",
   "category": "Data Engineering",
-  "image": "https://drive.google.com/uc?export=view&id=1JZpWA3vLFs3bqYOuGNDg_F975COlXKBt",
+  "image": "/projects/ealh-architecture.png",
   "description": "Production-style Azure data engineering pipeline that ingests transactional data from Azure SQL into ADLS Gen2 and processes it through a Databricks Medallion architecture with full DQ validation, schema drift handling, and CI/CD automation.",
   "situation": "Needed a scalable, production-grade lakehouse pipeline demonstrating end-to-end Azure data engineering skills for an enterprise context.",
   "task": "Design and implement a full Medallion architecture (Bronze → Silver → Gold) with metadata-driven ADF ingestion, incremental watermark extraction, Unity Catalog, and automated deployment via GitHub Actions.",

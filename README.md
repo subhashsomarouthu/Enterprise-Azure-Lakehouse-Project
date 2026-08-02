@@ -62,6 +62,15 @@ src/ealh/source_generators/  Python source data generator
 .github/workflows/           CI and manual dev deployment workflows
 ```
 
+## Documentation
+
+Detailed project walkthrough:
+
+```text
+docs/project-walkthrough.md
+```
+
+This explains the full source-to-Gold flow, all table types, ownership responsibilities, load/write patterns, and production gaps.
 ## Data Flow
 
 ADF reads active source table metadata from Azure SQL:

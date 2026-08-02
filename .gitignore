@@ -11,3 +11,5 @@ tfplan
 .adf_deploy_tmp/
 .tmp/
 .tmp/
+
+docs/project-walkthrough.md
